@@ -1,0 +1,29 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "osDiskVhdUri": {
+      "value": "https://mystoragename.blob.core.windows.net/mycontainername/mygeneralizedvhdfile.vhd"
+    },
+    "vmSize": {
+      "value": "Standard_D13_v2"
+    },
+    "vmName": {
+      "value": "vmname"
+    },
+    "dnsLabelPrefix": {
+      "value": "dnsname"
+    },
+    "adminUsername": {
+      "value": "axlocaladmin"
+    },
+    "adminPassword": {
+      "value": ""
+    },
+    "ipWhiteList": {
+      "value": [
+        "24.16.81.75"
+      ]
+    }
+  }
+}

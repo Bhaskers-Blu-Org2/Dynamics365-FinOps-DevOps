@@ -1,0 +1,243 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "osDiskVhdUri": {
+      "type": "string",
+      "metadata": {
+        "description": "Uri of the existing VHD"
+      }
+    },
+    "vmSize": {
+      "type": "string",
+      "defaultValue": "Standard_D13_v2",
+      "metadata": {
+        "description": "Size of the VM"
+      }
+    },
+    "vmName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the VM"
+      }
+    },
+    "dnsLabelPrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "DNS Label for the Public IP. Must be lowercase. It should match with the following regular expression: ^[a-z][a-z0-9-]{1,61}[a-z0-9]$ or it will raise an error."
+      }
+    },
+    "adminUsername": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "Name of the local administrator account, this cannot be Admin, Administrator or root."
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "minLength": 8,
+      "metadata": {
+        "description": "Local administrator password, complex password is required."
+      }
+    },
+    "ipWhiteList": {
+      "type": "array",
+      "metadata": {
+        "description": "Comma-separate list of IP addresses to allow for RDP"
+      }
+    }
+  },
+  "variables": {
+    "addressPrefix": "10.0.0.0/16",
+    "subnetName": "Subnet",
+    "subnetPrefix": "10.0.0.0/24",
+    "publicIPAddressName": "[concat(parameters('vmName'),'VMPublicIP')]",
+    "publicIPAddressType": "Dynamic",
+    "virtualNetworkName": "MyVMVNET",
+    "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
+    "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]",
+    "nicName": "[concat(parameters('vmName'),'VMnic')]",
+    "sourceStorageAccountName": "[substring(split(parameters('osDiskVhdUri'),'.')[0],8)]",
+    "sourceStorageAccountResourceGroup": "[resourceGroup().name]",
+    "storageAccountName": "[variables('sourceStorageAccountName')]",
+    "frontEndNSGName": "MyNSG",
+    "imageName": "ax7image"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Compute/images",
+      "apiVersion": "2017-03-30",
+      "name": "[variables('imageName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "storageProfile": {
+          "osDisk": {
+            "osType": "Windows",
+            "osState": "Generalized",
+            "blobUri": "[parameters('osDiskVhdUri')]",
+            "storageAccountType": "Standard_LRS"
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "2017-10-01",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[variables('frontEndNSGName')]",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "NSG - Front End"
+      },
+      "properties": {
+        "securityRules": [
+          {
+            "name": "rdp-rule-redmond",
+            "properties": {
+              "description": "Allow RDP",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "3389",
+              "sourceAddressPrefix": "131.107.128.0/18",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "rdp-rule",
+            "properties": {
+              "description": "Allow RDP",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "3389",
+              "sourceAddressPrefixes": "[parameters('ipWhiteList')]",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 110,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "web-rule",
+            "properties": {
+              "description": "Allow HTTPS",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "443",
+              "sourceAddressPrefix": "Internet",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 120,
+              "direction": "Inbound"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2017-10-01",
+      "type": "Microsoft.Network/virtualNetworks",
+      "name": "[variables('virtualNetworkName')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('frontEndNSGName'))]"
+      ],
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('addressPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('subnetName')]",
+            "properties": {
+              "addressPrefix": "[variables('subnetPrefix')]",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('frontEndNSGName'))]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2017-10-01",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[variables('nicName')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressName'))]",
+        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddressName'))]"
+              },
+              "subnet": {
+                "id": "[variables('subnetRef')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2017-10-01",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('publicIPAddressName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
+        "dnsSettings": {
+          "domainNameLabel": "[parameters('dnsLabelPrefix')]"
+        }
+      }
+    },
+    {
+      "apiVersion": "2017-03-30",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[parameters('vmName')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'))]",
+        "[concat('Microsoft.Compute/images/', variables('imageName'))]"
+      ],
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[parameters('vmName')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "id": "[resourceId('Microsoft.Compute/images', variables('imageName'))]"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "FQDN": {
+      "type": "string",
+      "value": "[reference(variables('publicIPAddressName')).dnsSettings.fqdn]"
+    }
+  }
+}
