@@ -1,14 +1,14 @@
 # Dynamics 365 for Finance and Operations - DevOps
 
-This repository contains scripts, samples and guidance on setting up a DevOps pipeline for Dynamics 365 for Finance and Operations.
+This repository contains scripts, samples and guidance on setting up a DevOps pipeline for Dynamics 365 for Finance and Operations. This content is intended to enable advanced development and test scenarios and is not for production use.
 
 
 ## Contents of this Repository
 
-- The [AOSConfigs PowerShell Module](aosconfigs/README.md) contains a PowerShell module with cmdlets to manage the configuration of an AOS.
+- The [AOSConfigs PowerShell Module](aosconfigs/) contains a PowerShell module with cmdlets to manage the configuration of an AOS.
 - The following samples are currently available
-   - [ARM VHD Simple](samples/arm-vhd-simple/README.md) is a sample ARM (Azure Resource Manager) template and a PowerShell script that uses the AOSConfigs PowerShell module to create instances of the VHD using ARM.
-   - [PowerShell Deploy](samples/ps-deploy/README.md) are sample scripts that can be used on VMs to deploy code, binaries, and updates.
+   - [ARM VHD Simple](samples/arm-vhd-simple/) is a sample ARM (Azure Resource Manager) template and a PowerShell script that uses the AOSConfigs PowerShell module to create instances of the VHD using ARM.
+   - [PowerShell Deploy](samples/ps-deploy/) are sample scripts that can be used on VMs to deploy code, binaries, and updates.
 
 
 # Contributing
