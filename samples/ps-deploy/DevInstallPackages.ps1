@@ -43,11 +43,12 @@ ForEach($package in $packages)
 if (!$skipDBSync)
 {
     $syncEngine = Join-Path -Path $packagesFolder -ChildPath "bin\SyncEngine.exe"
-    & $syncEngine -syncmode=fullall -metadatabinaries=$packagesFolder -connect="Data Source=localhost;Initial Catalog=AxDB;Integrated Security=True;Enlist=True;Application Name=SyncEngine" -fallbacktonative=False #-raiseDataEntityViewSyncNotification
+    & $syncEngine ("-syncmode=fullall") ("-metadatabinaries=$packagesFolder") ("-connect=`"Data Source=localhost;Initial Catalog=AxDB;Integrated Security=True;Enlist=True;Application Name=SyncEngine`"") ("-fallbacktonative=False") #-raiseDataEntityViewSyncNotification
 }
 
 if (!$skipReportDeploy)
 {
     $deployScript = Join-Path -Path $packagesFolder -ChildPath "Plugins\AxReportVmRoleStartupTask\DeployAllReportsToSsrs.ps1"
-    & $deployScript -PackageInstallLocation $packagesFolder
+    # TODO Re-enable once SSRS can run on the image
+    #& $deployScript -PackageInstallLocation ($packagesFolder)
 }

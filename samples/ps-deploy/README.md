@@ -30,7 +30,7 @@ These are sample scripts for development purposes, but they can be adapted and u
 the ARM-VHD-Simple sample and deploying custom code or platform updates for testing purposes.<br />
 
 ## Contributing
-See [the readme](/) at the root of this repository about contributing to this repository.
+See [the readme](/README.md) at the root of this repository about contributing to this repository.
 
 <br />
 <br />
