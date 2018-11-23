@@ -6,13 +6,14 @@ Param(
     [string]$appId,
     [string]$databasePassword,
     [string]$configsPath = "C:\AOSService\Webroot",
-    [string]$packagesFolder = "C:\AosService\PackagesLocalDirectory"
+    [string]$packagesFolder = "C:\AosService\PackagesLocalDirectory",
+    [string]$AOSConfigModulePath = $PSScriptRoot
 )
 
 $ErrorActionPreference = 'Stop'
 $VerbosePreference = 'Continue'
 
-Import-Module (Join-Path -Path $PSScriptRoot -ChildPath "AOSConfigs.psm1")
+Import-Module (Join-Path -Path $AOSConfigModulePath -ChildPath "AOSConfigs.psm1")
 
 Stop-Service DynamicsAXBatch
 
