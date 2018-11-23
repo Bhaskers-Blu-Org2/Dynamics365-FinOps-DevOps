@@ -33,7 +33,7 @@ The ARM template itself requires a few parameters as listed below. Note that any
 - Admin password for the VM itself ([see documentation](https://docs.microsoft.com/en-us/azure/templates/microsoft.compute/virtualmachines#osprofile-object))
 - IP Whitelist to allow only certain IPs through for RDP, used in the network security group ([see documentation](https://docs.microsoft.com/en-us/azure/templates/microsoft.network/networksecuritygroups#securityrulepropertiesformat-object))
 
-Also note that the ARM template has an output that returns the public FQDN (URL) for the VM created. This will be in a format like: DNSLabelPrefix.datacenter.cloudapp.azure.com
+Also note that the ARM template has an output that returns the public FQDN (URL) for the VM created. This will be in a format like: _DNSLabelPrefix_._datacenter_.cloudapp.azure.com . The deployed VM will also be deployed with a tag "vmName" containing its VM Name. This can be useful when using Azure DevOps and deployment groups.
 
 ### 4. Run the SetupVM.ps1
 SetupVM.ps1 along with the [AOSConfigs PowerShell Module](/aosconfigs/) can be executed on the VM, to finalize the AOS configuration to work with its new name, passwords, URL, etc. The script will generate new self-signed certificates for SSL and encryption on the VM. ARM templates have features to supply certificates to be installed automatically during VM deployment, which is a great option to consider.<br />

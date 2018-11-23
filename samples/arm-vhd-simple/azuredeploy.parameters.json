@@ -6,7 +6,7 @@
       "value": "https://mystoragename.blob.core.windows.net/mycontainername/mygeneralizedvhdfile.vhd"
     },
     "vmSize": {
-      "value": "Standard_D13_v2"
+      "value": "Standard_DS12_v2"
     },
     "vmName": {
       "value": "vmname"
@@ -22,7 +22,7 @@
     },
     "ipWhiteList": {
       "value": [
-        "24.16.81.75"
+        "172.16.1.1"
       ]
     }
   }

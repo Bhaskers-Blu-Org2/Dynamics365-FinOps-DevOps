@@ -10,7 +10,7 @@
     },
     "vmSize": {
       "type": "string",
-      "defaultValue": "Standard_D13_v2",
+      "defaultValue": "Standard_DS12_v2",
       "metadata": {
         "description": "Size of the VM"
       }
@@ -91,20 +91,6 @@
       },
       "properties": {
         "securityRules": [
-          {
-            "name": "rdp-rule-redmond",
-            "properties": {
-              "description": "Allow RDP",
-              "protocol": "Tcp",
-              "sourcePortRange": "*",
-              "destinationPortRange": "3389",
-              "sourceAddressPrefix": "131.107.128.0/18",
-              "destinationAddressPrefix": "*",
-              "access": "Allow",
-              "priority": 100,
-              "direction": "Inbound"
-            }
-          },
           {
             "name": "rdp-rule",
             "properties": {
@@ -206,6 +192,9 @@
       "type": "Microsoft.Compute/virtualMachines",
       "name": "[parameters('vmName')]",
       "location": "[resourceGroup().location]",
+      "tags": {
+        "vmName": "[parameters('vmName')]"
+      },
       "dependsOn": [
         "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'))]",
         "[concat('Microsoft.Compute/images/', variables('imageName'))]"
